@@ -1,0 +1,23 @@
+{
+  "name": "group-premium",
+  "version": "1.0.0",
+  "description": "GROUP PREMIUM - Telegram Stars subscription bot that unlocks photo sending and a native PREMIUM member tag in a Telegram supergroup, with website and admin dashboard.",
+  "type": "module",
+  "main": "src/server.js",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node src/server.js",
+    "migrate": "node src/migrate.js",
+    "check": "node --check src/server.js && for f in src/*.js src/routes/*.js public/js/*.js test/*.js; do node --check $f || exit 1; done",
+    "test": "node --test test/"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "express-rate-limit": "^7.5.0",
+    "grammy": "^1.35.0",
+    "helmet": "^8.0.0",
+    "pg": "^8.13.1"
+  }
+}

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin · GROUP PREMIUM</title>
+  <meta name="theme-color" content="#07071a">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body class="admin">
+  <div class="bg" aria-hidden="true"><span class="orb o1"></span><span class="orb o2"></span><div class="grid-overlay"></div></div>
+
+  <!-- Login -->
+  <section id="login-view" class="login-wrap" hidden>
+    <form id="login-form" class="glass login-card" autocomplete="on">
+      <a class="brand" href="/"><span class="logo">◆</span> GROUP <b>PREMIUM</b></a>
+      <h1>Admin sign in</h1>
+      <p class="muted">Set your password by sending <code>/setpassword &lt;password&gt;</code> to the bot in a private chat.</p>
+      <label>Telegram user ID<input name="telegramId" inputmode="numeric" pattern="[0-9]{1,20}" required autocomplete="username"></label>
+      <label>Password<input name="password" type="password" minlength="1" maxlength="128" required autocomplete="current-password"></label>
+      <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- Dashboard -->
+  <div id="app-view" hidden>
+    <header class="nav container">
+      <a class="brand" href="/"><span class="logo">◆</span> GROUP <b>PREMIUM</b> <span class="badge">Admin</span></a>
+      <div class="nav-links">
+        <span class="muted small" id="whoami"></span>
+        <button class="btn btn-ghost btn-sm" id="btn-sync" type="button">⟳ Run sync</button>
+        <button class="btn btn-ghost btn-sm" id="btn-logout" type="button">Sign out</button>
+      </div>
+    </header>
+
+    <main class="container dash">
+      <section class="stats">
+        <div class="glass stat"><div class="ic">👥</div><div><div class="label">Group members</div><div class="value" id="s-members">—</div></div></div>
+        <div class="glass stat"><div class="ic">💎</div><div><div class="label">Active premium</div><div class="value" id="s-active">—</div></div></div>
+        <div class="glass stat"><div class="ic">⌛</div><div><div class="label">Expired</div><div class="value" id="s-expired">—</div></div></div>
+        <div class="glass stat"><div class="ic">🧾</div><div><div class="label">Successful payments</div><div class="value" id="s-payments">—</div></div></div>
+        <div class="glass stat"><div class="ic">⭐</div><div><div class="label">Stars earned</div><div class="value" id="s-stars">—</div></div></div>
+        <div class="glass stat"><div class="ic">🔁</div><div><div class="label">Auto-renew on</div><div class="value" id="s-renew">—</div></div></div>
+      </section>
+
+      <section class="two-col">
+        <div class="glass panel">
+          <h2>🛡️ Group configuration</h2>
+          <ul class="status-list" id="group-status"></ul>
+        </div>
+        <div class="glass panel">
+          <h2>🤖 Bot connection</h2>
+          <ul class="status-list" id="bot-status"></ul>
+        </div>
+      </section>
+
+      <section class="glass panel">
+        <div class="panel-head">
+          <h2>👤 Subscribers</h2>
+          <form id="search-form" class="search" role="search">
+            <input id="q" type="search" placeholder="Search by @username, name or ID" maxlength="64">
+            <select id="status-filter" aria-label="Status filter">
+              <option value="">All</option><option value="ACTIVE">Active</option><option value="EXPIRED">Expired</option><option value="REVOKED">Revoked</option>
+            </select>
+            <button class="btn btn-primary btn-sm" type="submit">Search</button>
+          </form>
+        </div>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>User</th><th>ID</th><th>Status</th><th>Expires</th><th>Renewal</th><th>Group sync</th><th></th></tr></thead>
+            <tbody id="subs-body"><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <form id="grant-form" class="grant">
+          <strong>Manual grant</strong>
+          <input name="userId" inputmode="numeric" pattern="[0-9]{1,20}" placeholder="Telegram user ID" required>
+          <input name="days" type="number" min="1" max="365" value="30" required aria-label="Days">
+          <button class="btn btn-primary btn-sm" type="submit">💎 Grant premium</button>
+        </form>
+      </section>
+
+      <section class="glass panel">
+        <h2>🧾 Recent payments</h2>
+        <div class="table-wrap">
+          <table class="data">
+            <thead><tr><th>Date</th><th>User</th><th>Amount</th><th>Type</th><th>Status</th><th>Charge ID</th></tr></thead>
+            <tbody id="pay-body"><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="user-dialog" class="glass dialog">
+    <form method="dialog"><button class="close" aria-label="Close">✕</button></form>
+    <div id="user-detail"></div>
+  </dialog>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/js/admin.js" defer></script>
+</body>
+</html>
