@@ -191,3 +191,6 @@ For real Telegram testing locally, expose the port with an HTTPS tunnel (e.g. `c
 * `until_date` more than 366 days away = forever in Telegram; manual grants are capped at 365 days.
 * **Group member count** comes from `getChatMemberCount`; the Bot API cannot list all members, so the dashboard only lists users who interacted with the bot, paid or joined while the bot was admin.
 * Users must have started the bot in a private chat to receive notifications; payments always come through the private chat.
+
+## Optional secrets
+`WEBHOOK_SECRET`, `SESSION_SECRET` and `MAINTENANCE_SECRET` are optional. If one is missing or invalid, the app derives a strong, stable value from `BOT_TOKEN` (HMAC-SHA256). Changing `BOT_TOKEN` changes them, which logs out dashboard sessions and re-registers the webhook. To call `POST /internal/maintenance` from cron-job.org, set your own `MAINTENANCE_SECRET` so you know the value.

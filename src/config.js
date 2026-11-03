@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 // Centralised, validated configuration. All secrets come from environment variables.
 function req(name) {
   const v = process.env[name];
@@ -12,6 +13,16 @@ function int(name, def) {
   return n;
 }
 
+// Optional secret: use the env value if valid, otherwise derive a stable strong value from BOT_TOKEN.
+function secret(name, valid) {
+  const v = (process.env[name] || '').trim();
+  if (v && valid(v)) return v;
+  const token = (process.env.BOT_TOKEN || '').trim();
+  if (!token) throw new Error(`Missing ${name} and BOT_TOKEN to derive it from`);
+  if (v) console.warn(`[config] ${name} is invalid; using a value derived from BOT_TOKEN instead`);
+  return crypto.createHmac('sha256', token).update('group-premium:' + name).digest('base64url');
+}
+
 export function loadConfig() {
   const errors = [];
   const get = (fn) => { try { return fn(); } catch (e) { errors.push(e.message); return undefined; } };
@@ -21,12 +32,12 @@ export function loadConfig() {
     groupId: get(() => { const g = Number(req('GROUP_ID')); if (!Number.isInteger(g) || g >= 0) throw new Error('GROUP_ID must be a negative integer like -100xxxxxxxxxx'); return g; }),
     adminIds: get(() => req('ADMIN_TELEGRAM_IDS').split(',').map((s) => s.trim()).filter(Boolean).map((s) => { const n = Number(s); if (!Number.isSafeInteger(n) || n <= 0) throw new Error('ADMIN_TELEGRAM_IDS must be comma-separated positive integers'); return n; })),
     databaseUrl: get(() => req('DATABASE_URL')),
-    webhookSecret: get(() => { const s = req('WEBHOOK_SECRET'); if (!/^[A-Za-z0-9_-]{32,256}$/.test(s)) throw new Error('WEBHOOK_SECRET must be 32-256 chars of A-Z a-z 0-9 _ -'); return s; }),
-    sessionSecret: get(() => { const s = req('SESSION_SECRET'); if (s.length < 32) throw new Error('SESSION_SECRET must be at least 32 characters'); return s; }),
+    webhookSecret: get(() => secret('WEBHOOK_SECRET', (s) => /^[A-Za-z0-9_-]{32,256}$/.test(s))),
+    sessionSecret: get(() => secret('SESSION_SECRET', (s) => s.length >= 32)),
     baseUrl: get(() => { const u = req('BASE_URL').replace(/\/+$/, ''); if (!/^https?:\/\//.test(u)) throw new Error('BASE_URL must start with https://'); return u; }),
     priceStars: get(() => { const p = int('PRICE_STARS', 99); if (p < 1 || p > 10000) throw new Error('PRICE_STARS must be 1..10000'); return p; }),
     subscriptionPeriod: get(() => { const p = int('SUBSCRIPTION_PERIOD', 2592000); if (p !== 2592000) throw new Error('SUBSCRIPTION_PERIOD must be 2592000 (Telegram only accepts 30 days)'); return p; }),
-    maintenanceSecret: get(() => { const s = req('MAINTENANCE_SECRET'); if (s.length < 24) throw new Error('MAINTENANCE_SECRET must be at least 24 characters'); return s; }),
+    maintenanceSecret: get(() => secret('MAINTENANCE_SECRET', (s) => s.length >= 24)),
     port: int('PORT', 8000),
     groupInviteLink: (process.env.GROUP_INVITE_LINK || '').trim(),
     photoMode: (process.env.PHOTO_MODE || 'native').trim().toLowerCase(),
